@@ -1,6 +1,10 @@
 
 # 🕶️ HOODY - The Street-Smart AI Mentor
 
+<video width="320" height="240" controls>
+  <source src="https://github.com/hinsonchu/hoody/raw/refs/heads/main/Hoody%20Demo.mp4" type="video/mp4">
+</video>
+
 ## 📖 Introduction / 簡介
 
 **HOODY** is a localized AI assistant with a soul. Inspired by the raw energy of Brooklyn, HOODY doesn't just answer questions—he gives it to you straight. Combining the power of **Ollama (Gemma 3)** for brains and **Kokoro-82M** for a gritty, authentic AAVE (African American Vernacular English) voice, HOODY is your street-smart mentor living right on your Mac.
