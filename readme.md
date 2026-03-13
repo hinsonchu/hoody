@@ -1,7 +1,7 @@
 
 # 🕶️ HOODY - The Street-Smart AI Mentor
 
-![](https://github.com/hinsonchu/hoody/raw/refs/heads/main/Hoody%20Demo.mp4)
+Check demo: https://github.com/hinsonchu/hoody/raw/refs/heads/main/Hoody%20Demo.mp4
 
 ## 📖 Introduction / 簡介
 
