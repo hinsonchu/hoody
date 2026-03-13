@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOODY AI - Street Cred</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0F0F0F;
+            --primary: #39FF14; /* 毒液綠 */
+            --accent: #BC13FE;  /* 警報紫 */
+            --danger: #FF3E3E;  /* 警告紅 */
+            --text: #F5F5F5;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* 噪點背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.07;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3e%3cfilter id='noiseFilter'%3e%3cfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3e%3c/filter%3e%3crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3e%3c/svg%3e");
+        }
+
+        /* 容器 */
+        .app-container {
+            width: 380px;
+            height: 700px;
+            border: 4px solid #333;
+            display: flex;
+            flex-direction: column;
+            background: #111;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            padding: 15px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Bebas Neue';
+        }
+
+        .rank-tag {
+            background: var(--accent);
+            color: white;
+            padding: 2px 10px;
+            font-size: 14px;
+            clip-path: polygon(0 0, 90% 0, 100% 100%, 10% 100%);
+        }
+
+        /* Chat Area */
+        .chat-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Bubble Style */
+        .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            font-size: 14px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .ai-bubble {
+            background: #222;
+            border-left: 4px solid var(--primary);
+            color: var(--primary);
+            align-self: flex-start;
+        }
+
+        .user-bubble {
+            background: var(--text);
+            color: #000;
+            align-self: flex-end;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+        }
+
+        .avatar {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        /* Vibe Check Progress Bar */
+        .vibe-check-container {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .vibe-label {
+            font-family: 'Bebas Neue';
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .progress-bg {
+            height: 12px;
+            background: #222;
+            border: 1px solid #444;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(90deg, var(--danger), #ffcc00);
+            box-shadow: 0 0 10px var(--danger);
+            transition: width 0.5s ease;
+        }
+
+        /* Control Pad */
+        .control-pad {
+            background: #000;
+            padding: 20px;
+            border-top: 4px solid #333;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pad-btn {
+            background: #1A1A1B;
+            border: 1px solid #333;
+            color: #666;
+            font-size: 10px;
+            padding: 10px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .pad-btn:hover { color: white; border-color: #666; }
+
+        .mic-main {
+            background: #222;
+            border: 2px solid var(--primary);
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .mic-active-glow {
+            position: absolute;
+            inset: 0;
+            background: var(--primary);
+            opacity: 0.1;
+            display: none;
+        }
+
+        .active .mic-active-glow { display: block; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.1; }
+        }
+
+        /* Correction Text */
+        .correction {
+            font-style: italic;
+            color: var(--accent);
+            margin-top: 5px;
+            display: block;
+            border-top: 1px dashed #444;
+            padding-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="top-bar">
+            <div class="rank-tag">[ROOKIE]</div>
+            <div class="text-2xl tracking-tighter">HOODY</div>
+            <div class="text-orange-500 animate-pulse">[🔥 7]</div>
+        </div>
+
+        <div class="chat-content">
+            <div class="flex flex-col">
+                <span class="avatar">(AI_AVATAR)</span>
+                <div class="bubble ai-bubble">
+                    Yo, how's it goin?
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <span class="avatar">YOU</span>
+                <div class="bubble user-bubble">
+                    I am fine, thank you.
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <span class="avatar">(AI_AVATAR)</span>
+                <div class="bubble ai-bubble">
+                    "I'm fine" is for school! <br>
+                    <span class="correction">Say: "I'm chillin, G."</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="vibe-check-container">
+            <span class="vibe-label" id="vibe-percent">VIBE CHECK: 30%</span>
+            <div class="progress-bg">
+                <div class="progress-fill" id="vibe-bar"></div>
+            </div>
+        </div>
+
+        <div class="control-pad">
+            <div class="pad-btn" onclick="toggleTheme()">FLIP</div>
+            <div class="mic-main" id="mic-btn">
+                <div class="mic-active-glow"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>
+                </svg>
+            </div>
+            <div class="pad-btn">LIBRARY</div>
+        </div>
+    </div>
+
+    <script>
+        const micBtn = document.getElementById('mic-btn');
+        const vibeBar = document.getElementById('vibe-bar');
+        const vibePercent = document.getElementById('vibe-percent');
+        let active = false;
+        let score = 30;
+
+        micBtn.addEventListener('click', () => {
+            active = !active;
+            if(active) {
+                micBtn.classList.add('active');
+                // 模擬說話後分數上升
+                if(score < 90) {
+                    score += 15;
+                    updateVibe();
+                }
+            } else {
+                micBtn.classList.remove('active');
+            }
+        });
+
+        function updateVibe() {
+            vibeBar.style.width = score + '%';
+            vibePercent.innerText = `VIBE CHECK: ${score}%`;
+            
+            // 根據分數改變顏色
+            if(score > 70) {
+                vibeBar.style.background = 'linear-gradient(90deg, #39FF14, #A5F3FC)';
+                vibeBar.style.boxShadow = '0 0 15px #39FF14';
+            }
+        }
+
+        function toggleTheme() {
+            // 簡單的閃爍效果模擬 FLIP
+            document.body.style.filter = "invert(1)";
+            setTimeout(() => document.body.style.filter = "invert(0)", 100);
+        }
+    </script>
+</body>
+</html>
